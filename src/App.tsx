@@ -393,6 +393,7 @@ function App() {
 								<span className='history-date'>{log.date}</span>
 
 								<span className='history-preview'>
+									{' '}
 									{log.numberMeals} måltider ·{' '}
 									{log.waterLiters} L · {log.sleepHours} h
 									sömn
