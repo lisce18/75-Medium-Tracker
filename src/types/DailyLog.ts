@@ -11,5 +11,4 @@ export type DailyLog = {
 	snacksControlled: boolean;
 	supplementsMorning: boolean;
 	supplementsNight: boolean;
-	notes?: string;
 };

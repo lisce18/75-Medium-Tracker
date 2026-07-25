@@ -1,7 +1,9 @@
+import type { SubmitEventHandler } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import type { DailyLog } from './types/DailyLog';
 import { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
 
-const STORAGE_KEY = 'tracker-logs';
 const initialLog: DailyLog = {
 	date: new Date().toISOString().split('T')[0],
 	morningWeight: 0,
@@ -15,41 +17,189 @@ const initialLog: DailyLog = {
 	snacksControlled: false,
 	supplementsMorning: false,
 	supplementsNight: false,
-	notes: '',
 };
 
 type LogsByDate = Record<string, DailyLog>;
 
 function App() {
-	const [logsByDate, setLogsByDate] = useState<LogsByDate>(() => {
-		const savedLogs = localStorage.getItem(STORAGE_KEY);
-		if (!savedLogs) {
-			return {
-				[initialLog.date]: initialLog,
-			};
-		}
-
-		return JSON.parse(savedLogs) as LogsByDate;
+	const [session, setSession] = useState<Session | null>(null);
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn');
+	const [authMessage, setAuthMessage] = useState('');
+	const [authLoading, setAuthLoading] = useState(true);
+	const [logsByDate, setLogsByDate] = useState<LogsByDate>({
+		[initialLog.date]: initialLog,
 	});
+	const [logsLoading, setLogsLoading] = useState(false);
+	const [logsMessage, setLogsMessage] = useState('');
+
+	// const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const todaysLog = logsByDate[initialLog.date] ?? initialLog;
 
 	useEffect(() => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(logsByDate));
-	}, [logsByDate]);
-
-	function updateLog<K extends keyof DailyLog>(key: K, value: DailyLog[K]) {
-		setLogsByDate((currentLogs) => {
-			const currentLog = currentLogs[initialLog.date] ?? initialLog;
-
-			return {
-				...currentLogs,
-				[initialLog.date]: {
-					...currentLog,
-					[key]: value,
-				},
-			};
+		void supabase.auth.getSession().then(({ data }) => {
+			setSession(data.session);
+			setAuthLoading(false);
 		});
+
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange((_event, nextSession) => {
+			setSession(nextSession);
+			setAuthLoading(false);
+		});
+
+		return () => {
+			subscription.unsubscribe();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!session) {
+			setLogsByDate({
+				[initialLog.date]: initialLog,
+			});
+			return;
+		}
+
+		const userId = session.user.id;
+
+		async function fetchLogs() {
+			setLogsLoading(true);
+			setLogsMessage('');
+
+			const { data, error } = await supabase
+				.from('daily_logs')
+				.select('*')
+				.eq('user_id', userId)
+				.order('log_date', { ascending: false });
+
+			if (error) {
+				console.error('Kunde inte hämta loggar: ', error.message);
+				setLogsMessage(`Kunde inte hämta loggar: ${error.message}`);
+				setLogsLoading(false);
+				return;
+			}
+
+			const fetchedLogs = (data ?? []).reduce<LogsByDate>((logs, row) => {
+				const log: DailyLog = {
+					date: row.log_date,
+					morningWeight: Number(row.morning_weight),
+					nightWeight: Number(row.night_weight),
+					sleepHours: Number(row.sleep_hours),
+					energy: Number(row.energy),
+					numberMeals: Number(row.number_meals),
+					waterLiters: Number(row.water_liters),
+					movementDone: row.movement_done,
+					productivityDone: row.productivity_done,
+					snacksControlled: row.snacks_controlled,
+					supplementsMorning: row.supplements_morning,
+					supplementsNight: row.supplements_night,
+				};
+
+				logs[log.date] = log;
+
+				return logs;
+			}, {});
+
+			setLogsByDate({
+				...fetchedLogs,
+				[initialLog.date]: fetchedLogs[initialLog.date] ?? initialLog,
+			});
+
+			setLogsLoading(false);
+		}
+
+		void fetchLogs();
+	}, [session]);
+
+	const handleAuth: SubmitEventHandler<HTMLFormElement> = async (e) => {
+		e.preventDefault();
+		setAuthMessage('');
+
+		const result =
+			authMode === 'signIn'
+				? await supabase.auth.signInWithPassword({ email, password })
+				: await supabase.auth.signUp({ email, password });
+
+		if (result.error) {
+			setAuthMessage(result.error.message);
+			return;
+		}
+
+		if (authMode === 'signUp' && !result.data.session) {
+			setAuthMessage(
+				'Kontot skapades. Kontrollera din e-post för att bekräfta konto.',
+			);
+			return;
+		}
+
+		setAuthMessage('');
+	};
+
+	async function handleSignOut() {
+		const { error } = await supabase.auth.signOut();
+
+		if (error) {
+			setAuthMessage(error.message);
+		}
+	}
+
+	async function updateLog<K extends keyof DailyLog>(
+		key: K,
+		value: DailyLog[K],
+	) {
+		if (!session) return;
+
+		const currentLog = logsByDate[initialLog.date] ?? initialLog;
+
+		const updatedLog: DailyLog = {
+			...currentLog,
+			[key]: value,
+		};
+
+		setLogsByDate((currentLogs) => ({
+			...currentLogs,
+			[initialLog.date]: updatedLog,
+		}));
+
+		const { data, error } = await supabase
+			.from('daily_logs')
+			.upsert(
+				{
+					user_id: session.user.id,
+					log_date: updatedLog.date,
+					morning_weight: updatedLog.morningWeight,
+					night_weight: updatedLog.nightWeight,
+					sleep_hours: updatedLog.sleepHours,
+					energy: updatedLog.energy,
+					number_meals: updatedLog.numberMeals,
+					water_liters: updatedLog.waterLiters,
+					movement_done: updatedLog.movementDone,
+					productivity_done: updatedLog.productivityDone,
+					snacks_controlled: updatedLog.snacksControlled,
+					supplements_morning: updatedLog.supplementsMorning,
+					supplements_night: updatedLog.supplementsNight,
+					updated_at: new Date().toISOString(),
+				},
+				{
+					onConflict: 'user_id,log_date',
+				},
+			)
+			.select();
+
+		console.log('Supabase upsert result:', {
+			data,
+			error,
+			userId: session.user.id,
+			logDate: updatedLog.date,
+		});
+
+		if (error) {
+			console.error('Kunde inte spara dagens logg: ', error.message);
+		}
 	}
 
 	function resetToday() {
@@ -77,7 +227,6 @@ function App() {
 			snacksControlled: 'Snacks',
 			supplementsMorning: 'Tillskott Morgon',
 			supplementsNight: 'Tillskott Kväll',
-			notes: 'Kommentar',
 		};
 
 		return labels[key] ?? key;
@@ -124,16 +273,102 @@ function App() {
 			return value ? 'Ja' : 'Nej';
 		}
 
-		if (key === 'notes') {
-			return value ? String(value) : 'Ingen Kommentar';
-		}
-
 		return String(value);
+	}
+
+	if (authLoading) {
+		return (
+			<main>
+				<section className='card'>
+					<h2>Laddar...</h2>
+				</section>
+			</main>
+		);
+	}
+
+	if (!session) {
+		return (
+			<main>
+				<h1>75 Medium Tracker</h1>
+
+				<section className='card form-card'>
+					<h2>
+						{authMode === 'signIn' ? 'Logga In' : 'Skapa konto'}
+					</h2>
+
+					<form className='log-form' onSubmit={handleAuth}>
+						<label>
+							E-post
+							<input
+								type='email'
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								autoComplete='email'
+								required
+							/>
+						</label>
+
+						<label>
+							Lösenord
+							<input
+								type='password'
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								autoComplete={
+									authMode === 'signIn'
+										? 'current-password'
+										: 'new-password'
+								}
+								minLength={6}
+								required
+							/>
+						</label>
+
+						<button
+							className='auth-button auth-button-primary'
+							type='submit'
+						>
+							{authMode === 'signIn' ? 'Logga In' : 'Skapa konto'}
+						</button>
+					</form>
+
+					{authMessage && <p>{authMessage}</p>}
+
+					<button
+						className='auth-button auth-button-secondary'
+						type='button'
+						onClick={() => {
+							setAuthMode((currentMode) =>
+								currentMode === 'signIn' ? 'signUp' : 'signIn',
+							);
+							setAuthMessage('');
+						}}
+					>
+						{authMode === 'signIn'
+							? 'Har du inget konto? Skapa ett!'
+							: 'Har du redan ett konto? Logga in!'}
+					</button>
+				</section>
+			</main>
+		);
 	}
 
 	return (
 		<main>
-			<h1>75 Medium Tracker</h1>
+			<div className='auth-header'>
+				<h1>75 Medium Tracker</h1>
+
+				<button
+					className='auth-button auth-button-logout'
+					type='button'
+					onClick={handleSignOut}
+				>
+					Logga Ut
+				</button>
+			</div>
+
+			{logsLoading && <p>Laddar loggar...</p>}
+			{logsMessage && <p>{logsMessage}</p>}
 
 			<section className='card'>
 				<h2>Dagens logg</h2>
