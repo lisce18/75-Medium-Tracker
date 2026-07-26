@@ -1,7 +1,7 @@
 import type { SubmitEventHandler } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import type { DailyLog } from './types/DailyLog';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 
 const initialLog: DailyLog = {
@@ -34,7 +34,7 @@ function App() {
 	const [logsLoading, setLogsLoading] = useState(false);
 	const [logsMessage, setLogsMessage] = useState('');
 
-	// const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const todaysLog = logsByDate[initialLog.date] ?? initialLog;
 
@@ -115,6 +115,14 @@ function App() {
 		void fetchLogs();
 	}, [session]);
 
+	useEffect(() => {
+		return () => {
+			if (saveTimeoutRef.current) {
+				clearTimeout(saveTimeoutRef.current);
+			}
+		};
+	}, []);
+
 	const handleAuth: SubmitEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
 		setAuthMessage('');
@@ -147,12 +155,47 @@ function App() {
 		}
 	}
 
+	async function saveLog(log: DailyLog, userId: string) {
+		setLogsMessage('Sparar...');
+
+		const { error } = await supabase.from('daily_logs').upsert(
+			{
+				user_id: userId,
+				log_date: log.date,
+				morning_weight: log.morningWeight,
+				night_weight: log.nightWeight,
+				sleep_hours: log.sleepHours,
+				energy: log.energy,
+				number_meals: log.numberMeals,
+				water_liters: log.waterLiters,
+				movement_done: log.movementDone,
+				productivity_done: log.productivityDone,
+				snacks_controlled: log.snacksControlled,
+				supplements_morning: log.supplementsMorning,
+				supplements_night: log.supplementsNight,
+				updated_at: new Date().toISOString(),
+			},
+			{
+				onConflict: 'user_id,log_date',
+			},
+		);
+
+		if (error) {
+			console.error('Kunde inte spara dagens logg: ', error.message);
+			setLogsMessage(`Kunde inte spara loggen: ${error.message}`);
+			return;
+		}
+
+		setLogsMessage('Sparat');
+	}
+
 	async function updateLog<K extends keyof DailyLog>(
 		key: K,
 		value: DailyLog[K],
 	) {
 		if (!session) return;
 
+		const userId = session.user.id;
 		const currentLog = logsByDate[initialLog.date] ?? initialLog;
 
 		const updatedLog: DailyLog = {
@@ -165,48 +208,34 @@ function App() {
 			[initialLog.date]: updatedLog,
 		}));
 
-		const { data, error } = await supabase
-			.from('daily_logs')
-			.upsert(
-				{
-					user_id: session.user.id,
-					log_date: updatedLog.date,
-					morning_weight: updatedLog.morningWeight,
-					night_weight: updatedLog.nightWeight,
-					sleep_hours: updatedLog.sleepHours,
-					energy: updatedLog.energy,
-					number_meals: updatedLog.numberMeals,
-					water_liters: updatedLog.waterLiters,
-					movement_done: updatedLog.movementDone,
-					productivity_done: updatedLog.productivityDone,
-					snacks_controlled: updatedLog.snacksControlled,
-					supplements_morning: updatedLog.supplementsMorning,
-					supplements_night: updatedLog.supplementsNight,
-					updated_at: new Date().toISOString(),
-				},
-				{
-					onConflict: 'user_id,log_date',
-				},
-			)
-			.select();
+		setLogsMessage('Väntar på fler ändringar...');
 
-		console.log('Supabase upsert result:', {
-			data,
-			error,
-			userId: session.user.id,
-			logDate: updatedLog.date,
-		});
-
-		if (error) {
-			console.error('Kunde inte spara dagens logg: ', error.message);
+		if (saveTimeoutRef.current) {
+			clearTimeout(saveTimeoutRef.current);
 		}
+
+		saveTimeoutRef.current = setTimeout(() => {
+			void saveLog(updatedLog, userId);
+			saveTimeoutRef.current = null;
+		}, 700);
 	}
 
-	function resetToday() {
+	async function resetToday() {
+		if (!session) return;
+
+		if (saveTimeoutRef.current) {
+			clearTimeout(saveTimeoutRef.current);
+			saveTimeoutRef.current = null;
+		}
+
+		setLogsMessage('Sparar...');
+
 		setLogsByDate((currentLogs) => ({
 			...currentLogs,
 			[initialLog.date]: initialLog,
 		}));
+
+		await saveLog(initialLog, session.user.id);
 	}
 
 	const sortedLogs = Object.values(logsByDate).sort((a, b) =>
