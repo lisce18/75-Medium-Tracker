@@ -423,21 +423,29 @@ export default function JobsPage() {
 							<tbody>
 								{filteredJobs.map((job) => (
 									<tr key={job.id}>
-										<td>{job.companyName}</td>
-										<td>{job.jobTitle}</td>
-										<td>
+										<td data-label='Företag'>
+											{job.companyName}
+										</td>
+										<td data-label='Roll'>
+											{job.jobTitle}
+										</td>
+										<td data-label='Status'>
 											<span
 												className={`job-status job-status--${job.status}`}
 											>
 												{jobStatusLabels[job.status]}
 											</span>
 										</td>
-										<td>{job.appliedDate || '-'}</td>
-										<td>
+										<td data-label='Ansökt'>
+											{job.appliedDate || '-'}
+										</td>
+										<td data-label='Deadline'>
 											{job.applicationDeadline || '-'}
 										</td>
-										<td>{job.location || '-'}</td>
-										<td>
+										<td data-label='Plats'>
+											{job.location || '-'}
+										</td>
+										<td data-label='Annons'>
 											{job.jobUrl ? (
 												<a
 													className='job-link'
@@ -451,7 +459,10 @@ export default function JobsPage() {
 												'-'
 											)}
 										</td>
-										<td>
+										<td
+											data-label='Åtgärder'
+											className='job-actions-cell'
+										>
 											<div className='job-row-actions'>
 												<button
 													className='job-action-button job-action-button--edit'
