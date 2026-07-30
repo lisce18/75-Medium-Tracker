@@ -405,90 +405,88 @@ export default function JobsPage() {
 				) : filteredJobs.length === 0 ? (
 					<p>Inga jobbansökningar hittades.</p>
 				) : (
-					<div className='jobs-table-wrapper'>
-						<table className='jobs-table'>
-							<thead>
-								<tr>
-									<th>Företag</th>
-									<th>Roll</th>
-									<th>Status</th>
-									<th>Ansökt</th>
-									<th>Deadline</th>
-									<th>Plats</th>
-									<th>Annons</th>
-									<th>Åtgärder</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								{filteredJobs.map((job) => (
-									<tr key={job.id}>
-										<td data-label='Företag'>
+					<div className='jobs-list'>
+						{filteredJobs.map((job) => (
+							<article className='job-card' key={job.id}>
+								<div className='job-card-header'>
+									<div>
+										<p className='job-card-company'>
 											{job.companyName}
-										</td>
-										<td data-label='Roll'>
-											{job.jobTitle}
-										</td>
-										<td data-label='Status'>
-											<span
-												className={`job-status job-status--${job.status}`}
-											>
-												{jobStatusLabels[job.status]}
-											</span>
-										</td>
-										<td data-label='Ansökt'>
-											{job.appliedDate || '-'}
-										</td>
-										<td data-label='Deadline'>
-											{job.applicationDeadline || '-'}
-										</td>
-										<td data-label='Plats'>
-											{job.location || '-'}
-										</td>
-										<td data-label='Annons'>
-											{job.jobUrl ? (
-												<a
-													className='job-link'
-													href={job.jobUrl}
-													target='_blank'
-													rel='noreferrer'
-												>
-													Öppna
-												</a>
-											) : (
-												'-'
-											)}
-										</td>
-										<td
-											data-label='Åtgärder'
-											className='job-actions-cell'
-										>
-											<div className='job-row-actions'>
-												<button
-													className='job-action-button job-action-button--edit'
-													type='button'
-													onClick={() =>
-														handleEdit(job)
-													}
-												>
-													Redigera
-												</button>
+										</p>
 
-												<button
-													className='job-action-button job-action-button--delete'
-													type='button'
-													onClick={() =>
-														void handleDelete(job)
-													}
-												>
-													Ta Bort
-												</button>
-											</div>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+										<h3>{job.jobTitle}</h3>
+									</div>
+
+									<span
+										className={`job-status job-status--${job.status}`}
+									>
+										{jobStatusLabels[job.status]}
+									</span>
+								</div>
+
+								<dl className='job-card-details'>
+									<div>
+										<dt>Ansökt</dt>
+										<dd>{job.appliedDate || '-'}</dd>
+									</div>
+
+									<div>
+										<dt>Deadline</dt>
+										<dd>
+											{job.applicationDeadline || '-'}
+										</dd>
+									</div>
+
+									<div>
+										<dt>Plats</dt>
+										<dd>{job.location || '-'}</dd>
+									</div>
+								</dl>
+
+								{job.notes && (
+									<p className='job-card-notes'>
+										{job.notes}
+									</p>
+								)}
+
+								<div className='job-card-footer'>
+									{job.jobUrl ? (
+										<a
+											className='job-link'
+											href={job.jobUrl}
+											target='_blank'
+											rel='noreferrer'
+										>
+											Öppna annons
+										</a>
+									) : (
+										<span className='job-card-no-link'>
+											Ingen annonslänk
+										</span>
+									)}
+
+									<div className='job-row-actions'>
+										<button
+											className='job-action-button job-action-button--edit'
+											type='button'
+											onClick={() => handleEdit(job)}
+										>
+											Redigera
+										</button>
+
+										<button
+											className='job-action-button job-action-button--delete'
+											type='button'
+											onClick={() =>
+												void handleDelete(job)
+											}
+										>
+											Ta bort
+										</button>
+									</div>
+								</div>
+							</article>
+						))}
 					</div>
 				)}
 			</section>
