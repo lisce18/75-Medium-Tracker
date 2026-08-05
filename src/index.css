@@ -589,7 +589,7 @@ h2 {
 	text-decoration: underline;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 800px) {
 	.jobs-page-header,
 	.jobs-table-header {
 		align-items: stretch;
@@ -930,4 +930,28 @@ h2 {
 
 .jobs-table-header select {
 	min-height: 48px;
+}
+
+@media (max-width: 800px) {
+	.jobs-page-header,
+	.jobs-table-header {
+		width: 100%;
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.jobs-table-header > div {
+		width: 100%;
+		text-align: left;
+	}
+
+	.jobs-table-header label {
+		width: 100%;
+		min-width: 0;
+		align-self: stretch;
+	}
+
+	.jobs-table-header select {
+		width: 100%;
+	}
 }
