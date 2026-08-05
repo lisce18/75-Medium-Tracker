@@ -1,0 +1,67 @@
+/* =========================================================
+   MAIN NAVIGATION
+   Navigeringen mellan Tracker och Sökta jobb
+   ========================================================= */
+
+.app-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: fit-content;
+	margin: 0 auto 1.5rem;
+	padding: 0.35rem;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 999px;
+	background: rgba(15, 23, 42, 0.72);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+	backdrop-filter: blur(12px);
+}
+
+.app-nav-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 8rem;
+	padding: 0.7rem 1.15rem;
+	border-radius: 999px;
+	color: rgba(255, 255, 255, 0.72);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	transition:
+		background-color 160ms ease,
+		color 160ms ease,
+		transform 160ms ease,
+		box-shadow 160ms ease;
+}
+
+.app-nav-link:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: #ffffff;
+	transform: translateY(-1px);
+}
+
+.app-nav-link.active {
+	background: linear-gradient(135deg, #2563eb, #7c3aed);
+	color: #ffffff;
+	box-shadow: 0 6px 18px rgba(37, 99, 235, 0.32);
+}
+
+.app-nav-link:focus-visible {
+	outline: 3px solid rgba(96, 165, 250, 0.5);
+	outline-offset: 3px;
+}
+
+/* Responsive */
+
+@media (max-width: 520px) {
+	.app-nav {
+		width: 100%;
+	}
+
+	.app-nav-link {
+		min-width: 0;
+		flex: 1;
+	}
+}

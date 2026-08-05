@@ -1,52 +1,10 @@
-:root {
-	font-family:
-		system-ui,
-		-apple-system,
-		BlinkMacSystemFont,
-		'Segoe UI',
-		sans-serif;
-	color: #111827;
-	background: #f3f4f6;
-}
-
-* {
-	box-sizing: border-box;
-}
-
-body {
-	margin: 0;
-	min-width: 320px;
-	min-height: 100vh;
-	background: #f3f4f6;
-}
-
-#root {
-	min-height: 100vh;
-}
-
-main {
-	width: min(100% - 32px, 1100px);
-	margin: 0 auto;
-	padding: 32px 0;
-}
-
-h1,
-h2,
-p {
-	margin: 0;
-}
-
-h1 {
-	margin-bottom: 24px;
-	font-size: clamp(32px, 6vw, 44px);
-	line-height: 1.1;
-}
-
-h2 {
-	margin-bottom: 8px;
-	font-size: 24px;
-}
-
+@import './styles/global.css';
+@import './styles/shared.css';
+@import './styles/auth.css';
+@import './styles/jobs.css';
+@import './styles/navigation.css';
+@import './styles/tracker.css';
+/* 
 .card {
 	background: white;
 	border: 1px solid #e5e7eb;
@@ -99,7 +57,7 @@ h2 {
 	}
 }
 /* ===== Uppdatera dagen - clean form layout ===== */
-
+/*
 .form-card {
 	margin-top: 20px;
 }
@@ -113,7 +71,7 @@ h2 {
 	gap: 16px;
 }
 
-/* Alla label/input-rader */
+/* Alla label/input-rader */ /*
 .log-form > label:not(.checkbox-label) {
 	display: grid;
 	gap: 8px;
@@ -122,7 +80,7 @@ h2 {
 	font-weight: 700;
 }
 
-/* Nummerfält */
+/* Nummerfält */ /*
 .log-form input[type='number'] {
 	width: 100%;
 	border: 1px solid #d1d5db;
@@ -139,14 +97,14 @@ h2 {
 	box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
-/* Energi-texten under input */
+/* Energi-texten under input */ /*
 .log-form label span {
 	color: #6b7280;
 	font-size: 13px;
 	font-weight: 700;
 }
 
-/* Checkboxar */
+/* Checkboxar */ /*
 .checkbox-label {
 	display: flex !important;
 	align-items: center;
@@ -172,7 +130,7 @@ h2 {
 	accent-color: #111827;
 }
 
-/* ===== Historik / Nollställ idag ===== */
+/* ===== Historik / Nollställ idag ===== */ /*
 
 .history-card {
 	margin-top: 20px;
@@ -332,7 +290,7 @@ h2 {
 	}
 }
 
-/* Main navigation */
+/* Main navigation */ /*
 .app-nav {
 	display: flex;
 	align-items: center;
@@ -394,7 +352,7 @@ h2 {
 	}
 }
 
-/* Jobs page */
+/* Jobs page */ /*
 .jobs-page {
 	display: grid;
 	gap: 1.5rem;
@@ -954,4 +912,4 @@ h2 {
 	.jobs-table-header select {
 		width: 100%;
 	}
-}
+} */

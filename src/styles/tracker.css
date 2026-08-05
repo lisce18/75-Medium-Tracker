@@ -1,0 +1,244 @@
+/* =========================================================
+   TRACKER PAGE
+   ========================================================= */
+
+/* =========================================================
+   DAILY STATS
+   Sammanfattning av dagens värden
+   ========================================================= */
+
+.card-date {
+	margin-bottom: 20px;
+	color: #6b7280;
+}
+
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.stat-card {
+	padding: 14px 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 16px;
+	background: #f9fafb;
+}
+
+.stat-label {
+	margin-bottom: 4px;
+	color: #6b7280;
+	font-size: 14px;
+}
+
+.stat-value {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+/* =========================================================
+   DAILY FORM
+   Formuläret för dagens logg
+   ========================================================= */
+
+.form-card {
+	margin-top: 20px;
+}
+
+.form-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.form-card-header h2 {
+	margin: 0;
+}
+
+.form-card-status {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	min-height: 32px;
+}
+
+.log-form {
+	display: grid;
+	gap: 16px;
+}
+
+/* Vanliga formulärfält */
+
+.log-form > label:not(.checkbox-label) {
+	display: grid;
+	gap: 8px;
+	color: #374151;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.log-form input[type='number'] {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid #d1d5db;
+	border-radius: 14px;
+	background: #ffffff;
+	color: #111827;
+	font-size: 16px;
+	outline: none;
+}
+
+.log-form input[type='number']:focus {
+	border-color: #111827;
+	box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+.log-form label span {
+	color: #6b7280;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+/* Checkboxar */
+
+.checkbox-label {
+	display: flex !important;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 14px;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	background: #f9fafb;
+	color: #374151;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.checkbox-label:hover {
+	background: #f3f4f6;
+}
+
+.checkbox-label input {
+	width: 18px;
+	height: 18px;
+	accent-color: #111827;
+}
+
+/* =========================================================
+   SAVE STATUS
+   Laddar, sparar, sparat och felmeddelanden
+   ========================================================= */
+
+.status-message {
+	width: fit-content;
+	margin: 0;
+	padding: 0.45rem 0.75rem;
+	border: 1px solid transparent;
+	border-radius: 0.65rem;
+	font-size: 0.875rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.status-message--loading {
+	border-color: #60a5fa;
+	background: #eff6ff;
+	color: #1e3a8a;
+}
+
+.status-message--success {
+	border-color: #86efac;
+	background: #f0fdf4;
+	color: #14532d;
+}
+
+.status-message--error {
+	border-color: #fca5a5;
+	background: #fef2f2;
+	color: #7f1d1d;
+}
+
+/* =========================================================
+   HISTORY
+   Historik och nollställningsknapp
+   ========================================================= */
+
+.history-card {
+	margin-top: 20px;
+}
+
+.section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.section-header h2 {
+	margin-bottom: 0;
+}
+
+.section-header button {
+	padding: 9px 14px;
+	border: 1px solid #fecaca;
+	border-radius: 999px;
+	background: #fef2f2;
+	color: #991b1b;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+	transition:
+		background 150ms ease,
+		border-color 150ms ease,
+		transform 150ms ease;
+}
+
+.section-header button:hover {
+	border-color: #fca5a5;
+	background: #fee2e2;
+	transform: translateY(-1px);
+}
+
+.section-header button:active {
+	transform: translateY(0);
+}
+
+/* =========================================================
+   TRACKER RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 640px) {
+	.stats-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.section-header {
+		align-items: stretch;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.section-header button {
+		width: 100%;
+	}
+}
+
+@media (max-width: 520px) {
+	.form-card-header {
+		align-items: center;
+	}
+
+	.form-card-status {
+		min-height: 28px;
+	}
+
+	.status-message {
+		padding: 0.4rem 0.65rem;
+		font-size: 0.8rem;
+	}
+}
