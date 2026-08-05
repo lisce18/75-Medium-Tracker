@@ -1,0 +1,51 @@
+/* =========================================================
+   JOB STATUS
+   Färgkodade statusmarkeringar
+   ========================================================= */
+
+.job-status {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.3rem 0.6rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 750;
+	white-space: nowrap;
+}
+
+.job-status--interested {
+	border-color: #d97706;
+	background: #fef3c7;
+	color: #78350f;
+}
+
+.job-status--applied {
+	border-color: #2563eb;
+	background: #dbeafe;
+	color: #1e3a8a;
+}
+
+.job-status--interview {
+	border-color: #ea580c;
+	background: #ffedd5;
+	color: #7c2d12;
+}
+
+.job-status--offer {
+	border-color: #16a34a;
+	background: #dcfce7;
+	color: #14532d;
+}
+
+.job-status--rejected {
+	border-color: #dc2626;
+	background: #fee2e2;
+	color: #7f1d1d;
+}
+
+.job-status--withdrawn {
+	border-color: #64748b;
+	background: #e2e8f0;
+	color: #1e293b;
+}

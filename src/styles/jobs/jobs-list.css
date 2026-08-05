@@ -1,0 +1,16 @@
+/* =========================================================
+   JOBS LIST
+   Grid som innehåller jobbansökningarna
+   ========================================================= */
+
+.jobs-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 20px;
+}
+
+@media (max-width: 800px) {
+	.jobs-list {
+		grid-template-columns: 1fr;
+	}
+}

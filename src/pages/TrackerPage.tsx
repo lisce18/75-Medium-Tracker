@@ -37,13 +37,6 @@ function TrackerPage({ session }: TrackerPageProps) {
 	const todaysLog = logsByDate[initialLog.date] ?? initialLog;
 
 	useEffect(() => {
-		if (!session) {
-			setLogsByDate({
-				[initialLog.date]: initialLog,
-			});
-			return;
-		}
-
 		const userId = session.user.id;
 
 		async function fetchLogs() {
